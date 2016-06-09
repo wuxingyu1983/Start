@@ -9,13 +9,16 @@
 #import "ViewController.h"
 #import <JMAnimatedImageView/JMAnimatedImageView.h>
 #import "MultitouchLayer.h"
+#import <pop/POP.h>
+#import <AFNetworking/AFNetworking.h>
 
 #define Screen_Height       ([[UIScreen mainScreen] bounds].size.height)
 #define Screen_Width        ([[UIScreen mainScreen] bounds].size.width)
 
-@interface ViewController () <JMOImageViewAnimationDelegate, JMOImageViewAnimationDatasource>
+@interface ViewController () <JMOImageViewAnimationDelegate, JMOImageViewAnimationDatasource, MultitouchLayerDelegate>
 {
     JMAnimatedImageView *beforeImageView;
+    JMAnimatedImageView *afterImageView;
 }
 
 @end
@@ -29,8 +32,6 @@
     self.view.backgroundColor = [UIColor lightGrayColor];
     
     beforeImageView = [[JMAnimatedImageView alloc] initWithFrame:CGRectMake(0, 0, Screen_Width, Screen_Height)];
-    beforeImageView.multipleTouchEnabled = YES;
-    beforeImageView.userInteractionEnabled = YES;
     [self.view addSubview:beforeImageView];
     
     beforeImageView.animationDelegate = self;
@@ -40,34 +41,26 @@
     beforeImageView.memoryManagementOption = JMAnimatedImageViewMemoryLoadImageLowMemoryUsage;
     
     [beforeImageView setAnimationRepeatCount:0];
-    [beforeImageView setAnimationDuration:50 * 0.1];
+    [beforeImageView setAnimationDuration:51 * 0.1];
     
     [beforeImageView startAnimating];
     
+    afterImageView = [[JMAnimatedImageView alloc] initWithFrame:CGRectMake(0, 0, Screen_Width, Screen_Height)];
+    [self.view addSubview:afterImageView];
     
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self
-                                                                                 action:@selector(tapGestureHandler:)];
-    [beforeImageView addGestureRecognizer:tapGesture];
+    afterImageView.animationDelegate = self;
+    afterImageView.animationDatasource = self;
+    [afterImageView reloadAnimationImages]; //<JMOImageViewAnimationDatasource>
+    afterImageView.animationType = JMAnimatedImageViewAnimationTypeAutomaticLinearWithoutTransition;
+    afterImageView.memoryManagementOption = JMAnimatedImageViewMemoryLoadImageLowMemoryUsage;
     
-/*
-    NSMutableArray  *arrayBefore = [NSMutableArray array];
-    for (int i=0; i<=50; i++) {
-        NSString *filePath = [[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"按之前_00%03d",i]
-                                                             ofType:@"jpg"];
-        NSData *image = [NSData dataWithContentsOfFile:filePath];
-        [arrayBefore addObject:[UIImage imageWithData:image]];
-    }
+    [afterImageView setAnimationRepeatCount:1];
+    [afterImageView setAnimationDuration:101 * 0.1];
+  
+    afterImageView.layer.opacity = 0.0;
     
-    //设置动画数组
-    [beforeImageView setAnimationImages:arrayBefore];
-    
-    // 2. 设置动画时长，默认每秒播放30张图片
-    [beforeImageView setAnimationDuration:arrayBefore.count * 0.1];
-    
-    //开始动画
-    [beforeImageView startAnimating];
-*/
     MultitouchLayer *layer = [[MultitouchLayer alloc] initWithFrame:CGRectMake(0, 0, Screen_Width, Screen_Height)];
+    layer.delegate = self;
     [self.view addSubview:layer];
 }
 
@@ -76,28 +69,92 @@
     // Dispose of any resources that can be recreated.
 }
 
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    NSUInteger numTouches = [touches count];
-}
-
 #pragma mark - JMOImageViewAnimationDelegate
 
 #pragma mark - JMOImageViewAnimationDatasource
 
 - (NSInteger)numberOfImagesForAnimatedImageView:(UIImageView *)imageView
 {
-    return 51;
+    if (imageView == beforeImageView) {
+        return 51;
+    }
+    else {
+        return 101;
+    }
 }
 
 - (NSString *)imageNameAtIndex:(NSInteger)index forAnimatedImageView:(UIImageView *)imageView
 {
-    return [NSString stringWithFormat:@"按之前_00%03ld.jpg",(long)index];
+    if (imageView == beforeImageView) {
+        return [NSString stringWithFormat:@"按之前_00%03ld.jpg",(long)index];
+    }
+    else {
+        return [NSString stringWithFormat:@"按之后_00%03ld.jpg",(long)index];
+    }
+}
+
+#pragma mark - MultitouchLayerDelegate
+
+- (void)fiveTouchHappened
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        POPBasicAnimation *opacityBeforeAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPLayerOpacity];
+        opacityBeforeAnimation.toValue = @(0.0);
+        opacityBeforeAnimation.duration = 3.0f;
+        [beforeImageView.layer pop_addAnimation:opacityBeforeAnimation forKey:@"layerOpacityAnimation"];
+        
+        POPBasicAnimation *opacityAfterAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPLayerOpacity];
+        opacityAfterAnimation.toValue = @(1.0);
+        opacityAfterAnimation.duration = 3.0f;
+        [afterImageView.layer pop_addAnimation:opacityAfterAnimation forKey:@"layerOpacityAnimation"];
+        
+        [beforeImageView stopAnimating];
+        [afterImageView startAnimating];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+            NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject
+                                                                         delegate:nil
+                                                                    delegateQueue:[NSOperationQueue mainQueue]];
+            
+            
+            NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play"];
+            
+            NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
+                                                            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                                if(error == nil)
+                                                                {
+                                                                    NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
+                                                                                                                                   options:NSJSONReadingMutableContainers
+                                                                                                                                     error:nil];
+                                                                    if ([@"success" isEqualToString:[responseObject objectForKey:@"type"]]) {
+                                                                        [self sendSuccess];
+                                                                    }
+                                                                    else {
+                                                                        [self sendFailed];
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    [self sendFailed];
+                                                                }
+                                                            }];
+            
+            [dataTask resume];
+        });
+    });
 }
 
 #pragma mark - private functions
 
-- (IBAction)tapGestureHandler:(UIGestureRecognizer *)sender{
-    NSLog(@"the numberOfTouches is %lu", (unsigned long)[sender numberOfTouches]);
+- (void)sendFailed
+{
+    
+}
+
+- (void)sendSuccess
+{
+    
 }
 
 @end

@@ -8,6 +8,14 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol MultitouchLayerDelegate <NSObject>
+
+- (void)fiveTouchHappened;
+
+@end
+
 @interface MultitouchLayer : UIControl
+
+@property (strong, nonatomic) id<MultitouchLayerDelegate> delegate;
 
 @end

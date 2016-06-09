@@ -53,6 +53,11 @@
             }
             *point = [touch locationInView:nil];
         }
+        if (5 <= iTouchPoints) {
+            if (self.delegate) {
+                [self.delegate fiveTouchHappened];
+            }
+        }
     }
 }
 
