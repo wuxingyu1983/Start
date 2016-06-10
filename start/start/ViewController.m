@@ -97,52 +97,79 @@
 
 - (void)fiveTouchHappened
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        POPBasicAnimation *opacityBeforeAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPLayerOpacity];
-        opacityBeforeAnimation.toValue = @(0.0);
-        opacityBeforeAnimation.duration = 3.0f;
-        [beforeImageView.layer pop_addAnimation:opacityBeforeAnimation forKey:@"layerOpacityAnimation"];
+    POPBasicAnimation *opacityBeforeAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPLayerOpacity];
+    opacityBeforeAnimation.toValue = @(0.0);
+    opacityBeforeAnimation.duration = 3.0f;
+    [beforeImageView.layer pop_addAnimation:opacityBeforeAnimation forKey:@"layerOpacityAnimation"];
+    
+    POPBasicAnimation *opacityAfterAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPLayerOpacity];
+    opacityAfterAnimation.toValue = @(1.0);
+    opacityAfterAnimation.duration = 3.0f;
+    [afterImageView.layer pop_addAnimation:opacityAfterAnimation forKey:@"layerOpacityAnimation"];
+    
+    [beforeImageView stopAnimating];
+    [afterImageView startAnimating];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+        NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject
+                                                                     delegate:nil
+                                                                delegateQueue:[NSOperationQueue mainQueue]];
         
-        POPBasicAnimation *opacityAfterAnimation = [POPBasicAnimation animationWithPropertyNamed:kPOPLayerOpacity];
-        opacityAfterAnimation.toValue = @(1.0);
-        opacityAfterAnimation.duration = 3.0f;
-        [afterImageView.layer pop_addAnimation:opacityAfterAnimation forKey:@"layerOpacityAnimation"];
+        NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play0"];
         
-        [beforeImageView stopAnimating];
-        [afterImageView startAnimating];
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-            NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject
-                                                                         delegate:nil
-                                                                    delegateQueue:[NSOperationQueue mainQueue]];
-            
-            
-            NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play"];
-            
-            NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
-                                                            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-                                                                if(error == nil)
-                                                                {
-                                                                    NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
-                                                                                                                                   options:NSJSONReadingMutableContainers
-                                                                                                                                     error:nil];
-                                                                    if ([@"success" isEqualToString:[responseObject objectForKey:@"type"]]) {
-                                                                        [self sendSuccess];
-                                                                    }
-                                                                    else {
-                                                                        [self sendFailed];
-                                                                    }
+        NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
+                                                        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                            if(error == nil)
+                                                            {
+                                                                NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
+                                                                                                                               options:NSJSONReadingMutableContainers
+                                                                                                                                 error:nil];
+                                                                if ([@"success" isEqualToString:[responseObject objectForKey:@"type"]]) {
+                                                                    [self sendSuccess];
                                                                 }
                                                                 else {
                                                                     [self sendFailed];
                                                                 }
-                                                            }];
-            
-            [dataTask resume];
-        });
+                                                            }
+                                                            else {
+                                                                [self sendFailed];
+                                                            }
+                                                        }];
+        
+        [dataTask resume];
     });
+}
+
+- (void)fiveTouchReleased
+{
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration:defaultConfigObject
+                                                                 delegate:nil
+                                                            delegateQueue:[NSOperationQueue mainQueue]];
+    
+    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play1"];
+    
+    NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
+                                                    completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                        if(error == nil)
+                                                        {
+                                                            NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
+                                                                                                                           options:NSJSONReadingMutableContainers
+                                                                                                                             error:nil];
+                                                            if ([@"success" isEqualToString:[responseObject objectForKey:@"type"]]) {
+                                                                [self sendSuccess];
+                                                            }
+                                                            else {
+                                                                [self sendFailed];
+                                                            }
+                                                        }
+                                                        else {
+                                                            [self sendFailed];
+                                                        }
+                                                    }];
+    
+    [dataTask resume];
 }
 
 #pragma mark - private functions

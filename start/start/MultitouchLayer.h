@@ -11,6 +11,7 @@
 @protocol MultitouchLayerDelegate <NSObject>
 
 - (void)fiveTouchHappened;
+- (void)fiveTouchReleased;
 
 @end
 

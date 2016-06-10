@@ -10,8 +10,9 @@
 
 @interface MultitouchLayer()
 {
-    CFMutableDictionaryRef touchBeginPoints;
-    NSUInteger iTouchPoints;
+    CFMutableDictionaryRef  touchBeginPoints;
+    NSUInteger              iTouchPoints;
+    BOOL                    bFiveTouched;
 }
 
 @end
@@ -32,6 +33,7 @@
     if (self) {
         self.userInteractionEnabled = YES;
         self.multipleTouchEnabled = YES;
+        bFiveTouched = NO;
         
         touchBeginPoints = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, NULL);
         iTouchPoints = 0;
@@ -41,7 +43,7 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"touchesBegan : the touch count is %lu", (unsigned long)[touches count]);
+    //    NSLog(@"touchesBegan : the touch count is %lu", (unsigned long)[touches count]);
     if ([touches count] > 0) {
         for (UITouch *touch in touches) {
             CGPoint *point = (CGPoint *)CFDictionaryGetValue(touchBeginPoints, (__bridge const void *)(touch));
@@ -54,16 +56,20 @@
             *point = [touch locationInView:nil];
         }
         if (5 <= iTouchPoints) {
-            if (self.delegate) {
-                [self.delegate fiveTouchHappened];
-            }
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                bFiveTouched = YES;
+                if (self.delegate) {
+                    [self.delegate fiveTouchHappened];
+                }
+            });
         }
     }
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"touchesEnded : the touch count is %lu", (unsigned long)[touches count]);
+//    NSLog(@"touchesEnded : the touch count is %lu", (unsigned long)[touches count]);
     if ([touches count] > 0) {
         for (UITouch *touch in touches) {
             CGPoint *point = (CGPoint *)CFDictionaryGetValue(touchBeginPoints, (__bridge const void *)(touch));
@@ -71,6 +77,12 @@
                 CFDictionaryRemoveValue(touchBeginPoints, (__bridge const void *)(touch));
                 iTouchPoints --;
                 NSLog(@"the iTouchPoints is %lu", (unsigned long)iTouchPoints);
+                if (2 > iTouchPoints && bFiveTouched) {
+                    if (self.delegate) {
+                        [self.delegate fiveTouchReleased];
+                    }
+                    bFiveTouched = NO;
+                }
             }
         }
     }
@@ -78,7 +90,7 @@
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"touchesCancelled : the touch count is %lu", (unsigned long)[touches count]);
+//    NSLog(@"touchesCancelled : the touch count is %lu", (unsigned long)[touches count]);
     if ([touches count] > 0) {
         for (UITouch *touch in touches) {
             CGPoint *point = (CGPoint *)CFDictionaryGetValue(touchBeginPoints, (__bridge const void *)(touch));
