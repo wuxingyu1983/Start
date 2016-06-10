@@ -56,8 +56,16 @@
     
     [afterImageView setAnimationRepeatCount:1];
     [afterImageView setAnimationDuration:101 * 0.1];
-  
+    
     afterImageView.layer.opacity = 0.0;
+    
+    // 版本信息
+    UILabel *lbVersion = [[UILabel alloc] initWithFrame:CGRectMake(0, Screen_Height - 30, 30, 30)];
+    lbVersion.backgroundColor = [UIColor clearColor];
+    lbVersion.textColor = [UIColor whiteColor];
+    lbVersion.font = [UIFont systemFontOfSize:10.0f];
+    lbVersion.text = [NSString stringWithFormat:@"V%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
+    [self.view addSubview:lbVersion];
     
     MultitouchLayer *layer = [[MultitouchLayer alloc] initWithFrame:CGRectMake(0, 0, Screen_Width, Screen_Height)];
     layer.delegate = self;
