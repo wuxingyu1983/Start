@@ -125,7 +125,7 @@
                                                             delegateQueue:[NSOperationQueue mainQueue]];
 
 //    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play0"];
-    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1/server/cmd/send.do?flash=PJP,play0"];
+    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1:8080/server/cmd/send.do?flash=PJP,play0"];
 
     NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
                                                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -159,7 +159,7 @@
                                                             delegateQueue:[NSOperationQueue mainQueue]];
     
 //    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play1"];
-    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1/server/cmd/send.do?flash=PJP,play1"];
+    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1:8080/server/cmd/send.do?flash=PJP,play1"];
     
     NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
                                                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
