@@ -11,6 +11,7 @@
 #import "MultitouchLayer.h"
 #import <pop/POP.h>
 #import <AFNetworking/AFNetworking.h>
+#import <SVProgressHUD.h>
 
 #define Screen_Height       ([[UIScreen mainScreen] bounds].size.height)
 #define Screen_Width        ([[UIScreen mainScreen] bounds].size.width)
@@ -123,12 +124,14 @@
                                                                  delegate:nil
                                                             delegateQueue:[NSOperationQueue mainQueue]];
 
-    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play0"];
+//    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play0"];
+    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1/server/cmd/send.do?flash=PJP,play0"];
 
     NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
                                                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                         if(error == nil)
                                                         {
+                                                            [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"the url is %@, the return is %@", [url absoluteString], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]]];
                                                             NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
                                                                                                                            options:NSJSONReadingMutableContainers
                                                                                                                              error:nil];
@@ -140,6 +143,7 @@
                                                             }
                                                         }
                                                         else {
+                                                            [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"the url is %@, the error is %@", [url absoluteString], [error localizedDescription]]];
                                                             [self sendFailed];
                                                         }
                                                     }];
@@ -154,12 +158,14 @@
                                                                  delegate:nil
                                                             delegateQueue:[NSOperationQueue mainQueue]];
     
-    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play1"];
+//    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play1"];
+    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1/server/cmd/send.do?flash=PJP,play1"];
     
     NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
                                                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                         if(error == nil)
                                                         {
+                                                            [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"the url is %@, the return is %@", [url absoluteString], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]]];
                                                             NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
                                                                                                                            options:NSJSONReadingMutableContainers
                                                                                                                              error:nil];
@@ -171,6 +177,7 @@
                                                             }
                                                         }
                                                         else {
+                                                            [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"the url is %@, the error is %@", [url absoluteString], [error localizedDescription]]];
                                                             [self sendFailed];
                                                         }
                                                     }];
