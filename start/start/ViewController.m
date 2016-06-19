@@ -61,13 +61,14 @@
     afterImageView.layer.opacity = 0.0;
     
     // 版本信息
+/*
     UILabel *lbVersion = [[UILabel alloc] initWithFrame:CGRectMake(0, Screen_Height - 30, 30, 30)];
     lbVersion.backgroundColor = [UIColor clearColor];
     lbVersion.textColor = [UIColor whiteColor];
     lbVersion.font = [UIFont systemFontOfSize:10.0f];
     lbVersion.text = [NSString stringWithFormat:@"V%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
     [self.view addSubview:lbVersion];
-    
+*/
     MultitouchLayer *layer = [[MultitouchLayer alloc] initWithFrame:CGRectMake(0, 0, Screen_Width, Screen_Height)];
     layer.delegate = self;
     [self.view addSubview:layer];
@@ -125,13 +126,15 @@
                                                             delegateQueue:[NSOperationQueue mainQueue]];
 
 //    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play0"];
-    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1:8080/server/cmd/send.do?flash=PJP,play0"];
+    NSURL * url = [NSURL URLWithString:@"http://192.168.2.1:8080/server/cmd/send.do?flash=PJP,play0"];
 
     NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
                                                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                         if(error == nil)
                                                         {
+/*
                                                             [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"the url is %@, the return is %@", [url absoluteString], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]]];
+*/
                                                             NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
                                                                                                                            options:NSJSONReadingMutableContainers
                                                                                                                              error:nil];
@@ -143,7 +146,9 @@
                                                             }
                                                         }
                                                         else {
+/*
                                                             [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"the url is %@, the error is %@", [url absoluteString], [error localizedDescription]]];
+*/
                                                             [self sendFailed];
                                                         }
                                                     }];
@@ -159,13 +164,15 @@
                                                             delegateQueue:[NSOperationQueue mainQueue]];
     
 //    NSURL * url = [NSURL URLWithString:@"http://120.203.18.7/server/cmd/send.do?PJP_play1"];
-    NSURL * url = [NSURL URLWithString:@"http://192.168.1.1:8080/server/cmd/send.do?flash=PJP,play1"];
+    NSURL * url = [NSURL URLWithString:@"http://192.168.2.1:8080/server/cmd/send.do?flash=PJP,play1"];
     
     NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url
                                                     completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                                                         if(error == nil)
                                                         {
+/*
                                                             [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"the url is %@, the return is %@", [url absoluteString], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]]];
+*/
                                                             NSDictionary *responseObject = [NSJSONSerialization JSONObjectWithData:data
                                                                                                                            options:NSJSONReadingMutableContainers
                                                                                                                              error:nil];
@@ -177,7 +184,9 @@
                                                             }
                                                         }
                                                         else {
+/*
                                                             [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"the url is %@, the error is %@", [url absoluteString], [error localizedDescription]]];
+*/
                                                             [self sendFailed];
                                                         }
                                                     }];
