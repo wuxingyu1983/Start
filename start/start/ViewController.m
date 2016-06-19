@@ -86,7 +86,7 @@
 - (NSInteger)numberOfImagesForAnimatedImageView:(UIImageView *)imageView
 {
     if (imageView == beforeImageView) {
-        return 51;
+        return 151;
     }
     else {
         return 101;
@@ -96,10 +96,10 @@
 - (NSString *)imageNameAtIndex:(NSInteger)index forAnimatedImageView:(UIImageView *)imageView
 {
     if (imageView == beforeImageView) {
-        return [NSString stringWithFormat:@"按之前_00%03ld.jpg",(long)index];
+        return [NSString stringWithFormat:@"之前_00%03ld.jpg",(long)index];
     }
     else {
-        return [NSString stringWithFormat:@"按之后_00%03ld.jpg",(long)index];
+        return [NSString stringWithFormat:@"之后_00%03ld.jpg",(long)(index + 165)];
     }
 }
 
